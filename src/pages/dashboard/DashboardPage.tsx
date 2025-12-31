@@ -1,10 +1,16 @@
 import React from "react";
 import { dashboardMock } from "../../mock/dashboard.mock";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FiActivity,
+  FiAlertTriangle,
   FiBell,
+  FiCheckCircle,
+  FiCpu,
+  FiInfo,
+  FiLayers,
   FiLogOut,
+  FiPauseCircle,
   FiPlusCircle,
   FiSearch,
   FiServer,
@@ -16,7 +22,8 @@ import {
 const HEADER_HEIGHT = 90; // 🔑 header ki real height
 
 const DashboardPage: React.FC = () => {
-  const { overview, security, recentActivity, projects } = dashboardMock;
+  const { overview, security, recentActivity } = dashboardMock;
+  const navigate = useNavigate();
 
   return (
     <div className="relative h-full text-gray-800 overflow-hidden">
@@ -82,53 +89,89 @@ const DashboardPage: React.FC = () => {
       >
         <div className="space-y-12 px-1 pt-8">
           <section>
-            <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+            <h2 className="text-xl font-semibold mb-5 tracking-tight">
+              Quick Actions
+            </h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
               <QuickAction
-                icon={<FiPlusCircle />}
+                icon={<FiPlusCircle size={18} />}
                 label="New Project Setup"
-                accent="emerald"
+                accent="green"
+                onClick={() => navigate("/projects/new")}
               />
               <QuickAction
-                icon={<FiServer />}
+                icon={<FiServer size={18} />}
                 label="Add Environment"
-                accent="cyan"
+                accent="red"
               />
               <QuickAction
-                icon={<FiShield />}
+                icon={<FiShield size={18} />}
                 label="Get VPNs"
                 accent="indigo"
               />
               <QuickAction
-                icon={<FiActivity />}
+                icon={<FiActivity size={18} />}
                 label="View Logs"
-                accent="amber"
+                accent="yellow"
               />
             </div>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-4">
+            <h2 className="text-xl font-semibold mb-5 tracking-tight">
               Infrastructure Overview
             </h2>
 
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
-              <Metric label="Projects" value={overview.totalProjects} />
+              <Metric
+                label="Projects"
+                value={overview.totalProjects}
+                icon={<FiLayers size={18} />}
+              />
+
               <Metric
                 label="Active"
                 value={overview.activeProjects}
+                icon={<FiCheckCircle size={18} />}
                 highlight
               />
-              <Metric label="Inactive" value={overview.inactiveProjects} />
-              <Metric label="Environments" value={overview.totalEnvironments} />
+
               <Metric
-                label="Total VPNs Available"
-                value={overview.vpnProfiles}
+                label="Inactive"
+                value={overview.inactiveProjects}
+                icon={<FiPauseCircle size={18} />}
               />
-              <Metric label="JBOSS Servers" value={overview.jbossServers} />
+
+              <Metric
+                label="Environments"
+                value={overview.totalEnvironments}
+                icon={<FiServer size={18} />}
+              />
+
+              <Metric
+                label="Total VPNs"
+                value={overview.vpnProfiles}
+                icon={<FiShield size={18} />}
+              />
+
+              <Metric
+                label="JBOSS Servers"
+                value={overview.jbossServers}
+                icon={<FiCpu size={18} />}
+              />
             </div>
           </section>
+
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="xl:col-span-2">
+              <RecentLogs logs={recentLogs} />
+            </div>
+
+            <div>
+              <SystemIPCard ip="192.168.42.118" />
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <section className="rounded-3xl bg-white border border-gray-100 shadow-sm p-6">
@@ -171,53 +214,6 @@ const DashboardPage: React.FC = () => {
               </div>
             </section>
           </div>
-
-          <section>
-            <h2 className="text-xl font-semibold mb-4">
-              Project Control Matrix
-            </h2>
-
-            <div className="rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-xs text-gray-500">
-                  <tr>
-                    <th className="px-5 py-3 text-left">Project</th>
-                    <th>Status</th>
-                    <th>Health</th>
-                    <th>Environments</th>
-                    <th>VPN</th>
-                    <th>JBOSS</th>
-                    <th>Updated</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {projects.map((p) => (
-                    <tr key={p.id} className="border-t hover:bg-gray-50">
-                      <td className="px-5 py-3 font-medium">
-                        <Link
-                          to={`/projects/${p.id}`}
-                          className="hover:underline"
-                        >
-                          {p.name}
-                        </Link>
-                      </td>
-                      <td>
-                        <StatusBadge status={p.status} />
-                      </td>
-                      <td>
-                        <HealthBadge health={p.health} />
-                      </td>
-                      <td>{p.environments.join(", ")}</td>
-                      <td>{p.vpn ? "Yes" : "—"}</td>
-                      <td>{p.jboss ? "Yes" : "—"}</td>
-                      <td className="text-xs text-gray-500">{p.lastUpdated}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
         </div>
       </div>
     </div>
@@ -226,16 +222,48 @@ const DashboardPage: React.FC = () => {
 
 export default DashboardPage;
 
-const Metric = ({ label, value, highlight }: any) => (
+const Metric = ({ label, value, icon, highlight }: any) => (
   <div
-    className={`rounded-3xl p-5 border shadow-sm ${
-      highlight
-        ? "bg-gray-900 text-white border-gray-900"
-        : "bg-white border-gray-100"
-    }`}
+    className={`
+      relative rounded-3xl p-5
+      border transition-all
+      ${
+        highlight
+          ? "bg-green-100 text-green-400 border-gray-900 shadow-lg"
+          : "bg-white text-gray-800 border-gray-200 shadow-sm hover:shadow-md"
+      }
+    `}
   >
-    <p className="text-xs opacity-70">{label}</p>
-    <p className="mt-2 text-3xl font-bold">{value}</p>
+    <div className="flex items-start justify-between">
+      <div>
+        <p
+          className={`text-xs font-medium tracking-wide uppercase ${
+            highlight ? "text-gray-900" : "text-gray-500"
+          }`}
+        >
+          {label}
+        </p>
+
+        <p className="mt-2 text-3xl font-bold tracking-tight">{value}</p>
+      </div>
+
+      <div
+        className={`
+          p-3 rounded-xl
+          ${
+            highlight
+              ? "bg-white/10 text-green-400"
+              : "bg-gray-100 text-gray-700"
+          }
+        `}
+      >
+        {icon}
+      </div>
+    </div>
+
+    {highlight && (
+      <div className="absolute inset-x-6 bottom-3 h-0.5 bg-green-500 rounded-full" />
+    )}
   </div>
 );
 
@@ -274,15 +302,179 @@ const HealthBadge = ({ health }: any) => {
   );
 };
 
-const QuickAction = ({ icon, label, accent }: any) => (
-  <button
-    className={`flex items-center gap-3 rounded-2xl p-4 bg-white border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition group cursor-pointer`}
-  >
-    <div
-      className={`p-3 rounded-xl bg-${accent}-100 text-${accent}-700 group-hover:bg-${accent}-200 transition`}
+const accentMap: any = {
+  green: {
+    bg: "from-green-300 to-green-100",
+    iconBg: "bg-green-100",
+    iconText: "text-green-700",
+    ring: "hover:ring-green-200",
+  },
+  red: {
+    bg: "from-red-300 to-red-100",
+    iconBg: "bg-red-100",
+    iconText: "text-red-700",
+    ring: "hover:ring-red-200",
+  },
+  indigo: {
+    bg: "from-indigo-300 to-indigo-100",
+    iconBg: "bg-indigo-100",
+    iconText: "text-indigo-700",
+    ring: "hover:ring-indigo-200",
+  },
+  yellow: {
+    bg: "from-yellow-300 to-yellow-100",
+    iconBg: "bg-yellow-100",
+    iconText: "text-yellow-700",
+    ring: "hover:ring-yellow-200",
+  },
+};
+
+const QuickAction = ({ icon, label, accent, onClick }: any) => {
+  const a = accentMap[accent];
+
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        flex items-center gap-4
+        rounded-2xl p-5
+        bg-linear-to-br ${a.bg}
+        border border-gray-200 shadow-sm
+        transition-all duration-300 cursor-pointer
+      `}
     >
-      {icon}
-    </div>
-    <span className="text-sm font-medium text-gray-700">{label}</span>
-  </button>
-);
+      <div
+        className={`
+          flex items-center justify-center
+          p-3 rounded-xl
+          ${a.iconBg} ${a.iconText}
+          transition-all duration-300
+          group-hover:scale-110
+        `}
+      >
+        {icon}
+      </div>
+
+      <div className="flex flex-col text-left">
+        <span className="text-sm font-semibold text-gray-900">{label}</span>
+        <span className="text-xs text-gray-500">Quick access</span>
+      </div>
+    </button>
+  );
+};
+
+const levelIconMap: any = {
+  INFO: <FiInfo size={14} />,
+  WARN: <FiAlertTriangle size={14} />,
+  SUCCESS: <FiCheckCircle size={14} />,
+};
+
+const levelStyleMap: any = {
+  INFO: "text-gray-500",
+  WARN: "text-gray-700",
+  SUCCESS: "text-green-500",
+};
+
+const recentLogs = [
+  {
+    level: "SUCCESS",
+    message: "New environment deployed successfully",
+    timestamp: "2025-01-02 10:42:18",
+    source: "DEPLOY-SERVICE",
+  },
+  {
+    level: "INFO",
+    message: "VPN profile synced with gateway",
+    timestamp: "2025-01-02 10:31:02",
+    source: "VPN-MANAGER",
+  },
+  {
+    level: "WARN",
+    message: "JBOSS node restarted due to memory threshold",
+    timestamp: "2025-01-02 10:14:56",
+    source: "JBOSS-02",
+  },
+];
+
+export const RecentLogs = ({ logs }: any) => {
+  return (
+    <section>
+      <h2 className="text-xl font-semibold mb-4 tracking-tight">
+        Recent Log Activities
+      </h2>
+
+      <div className="rounded-3xl bg-white border border-gray-200 shadow-sm p-6">
+        <ul className="space-y-5">
+          {logs.map((log: any, idx: number) => (
+            <li key={idx} className="flex gap-4">
+              <div
+                className={`mt-1 p-2 rounded-lg bg-gray-100 ${
+                  levelStyleMap[log.level]
+                }`}
+              >
+                {levelIconMap[log.level]}
+              </div>
+
+              <div className="flex-1">
+                <p className="text-sm text-gray-800 font-medium">
+                  {log.message}
+                </p>
+
+                <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 font-mono">
+                  <span>{log.timestamp}</span>
+                  <span>•</span>
+                  <span>{log.source}</span>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+};
+
+import { FiCopy, FiGlobe } from "react-icons/fi";
+
+export const SystemIPCard = ({ ip }: any) => {
+  return (
+    <section>
+      <h2 className="text-xl font-semibold mb-4 tracking-tight">
+        System Network
+      </h2>
+
+      <div className="rounded-3xl bg-green-100 text-white p-6 shadow-lg border border-gray-900">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-gray-900 font-semibold">
+              Current System IP
+            </p>
+
+            <p className="mt-2 text-2xl font-mono font-semibold text-green-400">
+              {ip}
+            </p>
+          </div>
+
+          <div className="p-3 rounded-xl bg-white/10 text-green-400">
+            <FiGlobe size={18} />
+          </div>
+        </div>
+
+        <div className="mt-5 flex items-center gap-3">
+          <button
+            className="
+              flex items-center gap-2
+              text-xs text-gray-900
+              transition border border-gray-900 p-2 rounded-full
+            "
+          >
+            <FiCopy size={14} />
+            Copy IP
+          </button>
+
+          <span className="text-xs text-gray-500">Public Network</span>
+        </div>
+      </div>
+    </section>
+  );
+};

@@ -10,7 +10,7 @@ const Layout: React.FC = () => {
       <LeftNav />
 
       {/* Right Panel */}
-      <div className="flex-1 bg-white rounded-l-[80px] overflow-hidden">
+      <div className="flex-1 bg-gray-100 rounded-l-[80px] overflow-hidden">
 
         {/* This ensures rounded panel never scrolls */}
         <div className="h-full flex flex-col">
