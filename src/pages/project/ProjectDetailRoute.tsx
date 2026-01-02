@@ -1,4 +1,3 @@
-// src/pages/ProjectDetailRoute.tsx
 import React from "react";
 import { useParams } from "react-router-dom";
 import ProjectDetailPage from "./ProjectDetailPage";
