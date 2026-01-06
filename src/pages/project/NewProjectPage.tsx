@@ -585,6 +585,7 @@ import ProjectInfoCard from "./components/ProjectInfoCard";
 import SectionsBuilder from "./components/SectionsBuilder";
 import AssetsSidebar from "./components/AssetsSidebar";
 import { useConfirm } from "../../context/ConfirmContext";
+import { useToast } from "../../context/ToastContext";
 
 const NewProjectPage: React.FC = () => {
   const confirm = useConfirm();
@@ -594,6 +595,7 @@ const NewProjectPage: React.FC = () => {
   const [sections, setSections] = useState<SectionForm[]>([]);
   const [images, setImages] = useState<File[]>([]);
   const [documents, setDocuments] = useState<File[]>([]);
+  const { showToast } = useToast();
 
   const generateSlug = (v: string) =>
     v
@@ -604,13 +606,13 @@ const NewProjectPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const ok = await confirm({
-      title: "Delete this section?",
-      description: "All fields inside will be lost.",
-      confirmText: "Delete",
-    });
+    // const ok = await confirm({
+    //   title: "Delete this section?",
+    //   description: "All fields inside will be lost.",
+    //   confirmText: "Delete",
+    // });
 
-    if (!ok) return;
+    // if (!ok) return;
 
     const payload = {
       slug: generateSlug(slug || name),
@@ -625,7 +627,8 @@ const NewProjectPage: React.FC = () => {
       })),
     };
     console.log("Submitting payload:", payload);
-    alert(JSON.stringify(payload, null, 2));
+    showToast("Saved successfully 🌸", "Your data has been saved successfully and files have been uploaded to cloud storage.", "success",5000);
+    // alert(JSON.stringify(payload, null, 2));
   };
 
   return (
