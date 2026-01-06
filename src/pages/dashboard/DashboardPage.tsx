@@ -32,13 +32,21 @@ const DashboardPage: React.FC = () => {
         style={{ height: HEADER_HEIGHT }}
       >
         <div className="h-full flex items-center justify-between gap-6 text-white">
-          <div>
-            <h1 className="text-2xl ml-4 font-semibold tracking-tight">
-              Dashboard
-            </h1>
-            <p className="mt-1 text-xs text-gray-400">
-              Live overview of projects, infrastructure & security
-            </p>
+          <div className="flex justify-center items-baseline-last">
+            <div className="text-green-400 rounded-full mr-6 relative">
+              <RiMenuFold2Line size={30} />
+              <div className="text-red-500 rounded-full bg-red-400/20 p-1.5 absolute -top-3 -right-4">
+                <LuLockOpen size={12} />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-2xl ml-4 font-semibold tracking-tight">
+                Dashboard
+              </h1>
+              <p className="mt-1 text-xs text-gray-400">
+                Live overview of projects, infrastructure & security
+              </p>
+            </div>
           </div>
 
           <div className="flex-1 max-w-lg">
@@ -84,7 +92,7 @@ const DashboardPage: React.FC = () => {
       </section>
 
       <div
-        className="absolute inset-0 overflow-y-auto"
+        className="absolute inset-0 overflow-y-auto px-12 scroll-hide"
         style={{ paddingTop: HEADER_HEIGHT }}
       >
         <div className="space-y-12 px-1 pt-8">
@@ -174,7 +182,7 @@ const DashboardPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <section className="rounded-3xl bg-white border border-gray-100 shadow-sm p-6">
+            <section className="rounded-3xl text-white bg-gray-900 border border-gray-100 shadow-sm p-6">
               <h3 className="text-xl font-semibold mb-4">Security Snapshot</h3>
 
               <SecurityRow
@@ -229,7 +237,7 @@ const Metric = ({ label, value, icon, highlight }: any) => (
       border transition-all
       ${
         highlight
-          ? "bg-green-100 text-green-400 border-gray-900 shadow-lg"
+          ? "bg-gray-900 text-green-400 border-gray-900 shadow-lg"
           : "bg-white text-gray-800 border-gray-200 shadow-sm hover:shadow-md"
       }
     `}
@@ -238,7 +246,7 @@ const Metric = ({ label, value, icon, highlight }: any) => (
       <div>
         <p
           className={`text-xs font-medium tracking-wide uppercase ${
-            highlight ? "text-gray-900" : "text-gray-500"
+            highlight ? "text-green-400" : "text-gray-500"
           }`}
         >
           {label}
@@ -304,28 +312,36 @@ const HealthBadge = ({ health }: any) => {
 
 const accentMap: any = {
   green: {
-    bg: "from-green-300 to-green-100",
+    bg: "white",
     iconBg: "bg-green-100",
     iconText: "text-green-700",
     ring: "hover:ring-green-200",
+    text: "text-green-400",
+    redirectIconColour: "",
   },
   red: {
-    bg: "from-red-300 to-red-100",
+    bg: "white",
     iconBg: "bg-red-100",
     iconText: "text-red-700",
     ring: "hover:ring-red-200",
+    text: "text-red-400",
+    redirectIconColour: "",
   },
   indigo: {
-    bg: "from-indigo-300 to-indigo-100",
+    bg: "white",
     iconBg: "bg-indigo-100",
     iconText: "text-indigo-700",
     ring: "hover:ring-indigo-200",
+    text: "text-indigo-400",
+    redirectIconColour: "",
   },
   yellow: {
-    bg: "from-yellow-300 to-yellow-100",
+    bg: "bg-gray-900",
     iconBg: "bg-yellow-100",
     iconText: "text-yellow-700",
     ring: "hover:ring-yellow-200",
+    text: "text-yellow-400",
+    redirectIconColour: "text-white",
   },
 };
 
@@ -340,24 +356,38 @@ const QuickAction = ({ icon, label, accent, onClick }: any) => {
         rounded-2xl p-5
         bg-linear-to-br ${a.bg}
         border border-gray-200 shadow-sm
-        transition-all duration-300 cursor-pointer
+        transition-all duration-300 cursor-pointer justify-between
       `}
     >
-      <div
-        className={`
+      <div className="flex gap-4 justify-center items-center">
+        <div
+          className={`
           flex items-center justify-center
           p-3 rounded-xl
           ${a.iconBg} ${a.iconText}
           transition-all duration-300
           group-hover:scale-110
         `}
-      >
-        {icon}
+        >
+          {icon}
+        </div>
+
+        <div className="flex flex-col text-left">
+          <span className={`text-sm font-semibold ${a.text}`}>{label}</span>
+          <span className={`${a.redirectIconColour} text-xs text-gray-500`}>
+            Quick access
+          </span>
+        </div>
       </div>
 
-      <div className="flex flex-col text-left">
-        <span className="text-sm font-semibold text-gray-900">{label}</span>
-        <span className="text-xs text-gray-500">Quick access</span>
+      <div
+        className={`
+          flex items-center justify-center
+          p-3 transition-all duration-300
+          group-hover:scale-110 ${a.redirectIconColour}
+        `}
+      >
+        <RxOpenInNewWindow size={24} />
       </div>
     </button>
   );
@@ -435,6 +465,9 @@ export const RecentLogs = ({ logs }: any) => {
 };
 
 import { FiCopy, FiGlobe } from "react-icons/fi";
+import { RxOpenInNewWindow } from "react-icons/rx";
+import { RiMenuFold2Line } from "react-icons/ri";
+import { LuLockOpen } from "react-icons/lu";
 
 export const SystemIPCard = ({ ip }: any) => {
   return (
@@ -443,10 +476,10 @@ export const SystemIPCard = ({ ip }: any) => {
         System Network
       </h2>
 
-      <div className="rounded-3xl bg-green-100 text-white p-6 shadow-lg border border-gray-900">
+      <div className="rounded-3xl bg-gray-900 text-white p-6 shadow-lg border border-gray-900">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-wide text-gray-900 font-semibold">
+            <p className="text-xs uppercase tracking-wide text-green-400 font-semibold">
               Current System IP
             </p>
 
@@ -455,7 +488,7 @@ export const SystemIPCard = ({ ip }: any) => {
             </p>
           </div>
 
-          <div className="p-3 rounded-xl bg-white/10 text-green-400">
+          <div className="p-3 rounded-xl bg-green-400/20 text-green-400">
             <FiGlobe size={18} />
           </div>
         </div>
@@ -464,7 +497,7 @@ export const SystemIPCard = ({ ip }: any) => {
           <button
             className="
               flex items-center gap-2
-              text-xs text-gray-900
+              text-xs text-green-400
               transition border border-gray-900 p-2 rounded-full
             "
           >
@@ -472,7 +505,7 @@ export const SystemIPCard = ({ ip }: any) => {
             Copy IP
           </button>
 
-          <span className="text-xs text-gray-500">Public Network</span>
+          <span className="text-xs text-green-500">Public Network</span>
         </div>
       </div>
     </section>
